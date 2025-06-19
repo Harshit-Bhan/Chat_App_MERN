@@ -1,10 +1,12 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const cors = require('cors');
 
 const app = express();
+// app.use(cors());
 dotenv.config();
 
-app.get('/',(req,res) => {
+app.get('/api',(req,res) => {
     res.send("API is Running");
 })
 
