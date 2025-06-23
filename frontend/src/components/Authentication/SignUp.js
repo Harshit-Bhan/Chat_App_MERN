@@ -1,5 +1,6 @@
 import { FormControl, Input, VStack , FormLabel, InputGroup, InputRightElement, Button } from '@chakra-ui/react'
 import React, { useState } from 'react'
+import { useToast } from '@chakra-ui/react'
 
 const SignUp = () => {
     const [show,setShow] = useState(false);
@@ -8,14 +9,76 @@ const SignUp = () => {
     const [password,setPassword] = useState();
     const [confirmpassword,setConfirmPassword] = useState();
     const [pic,setPic] = useState();
+    const [loading,setLoading] = useState(false);
+
+    const toast = useToast();
 
     const handleClick = () => {
         setShow(!show);
     }
 
-    const postDetails = () => {
-
-    }
+    const postDetails = (pics) => {
+        setLoading(true);
+      
+        if (pics === undefined) {
+          toast({
+            title: 'Please Select an Image!',
+            status: 'warning',
+            duration: 5000,
+            isClosable: true,
+            position: 'bottom',
+          });
+          setLoading(false);  
+          return;
+        }
+      
+        if (pics.type === 'image/jpeg' || pics.type === 'image/png') {
+          const data = new FormData();
+          data.append('file', pics);
+          data.append('upload_preset', 'Chat_App');  
+          data.append('cloud_name', 'dfgkcii3i');
+      
+          fetch('https://api.cloudinary.com/v1_1/dfgkcii3i/image/upload', {
+            method: 'post',
+            body: data,
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              setPic(data.url.toString());
+              setLoading(false);
+              toast({
+                title: 'Image Uploaded!',
+                status: 'success',
+                duration: 5000,
+                isClosable: true,
+                position: 'bottom',
+              });
+            })
+            .catch((err) => {
+              console.error(err);
+              setLoading(false);
+              toast({
+                title: 'Upload Failed!',
+                description: 'Please try again.',
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+                position: 'bottom',
+              });
+            });
+        } else {
+          toast({
+            title: 'Invalid file type!',
+            description: 'Please select a JPEG or PNG image.',
+            status: 'warning',
+            duration: 5000,
+            isClosable: true,
+            position: 'bottom',
+          });
+          setLoading(false);
+        }
+      };
+      
 
     const submitHandler = () => {
 
@@ -53,7 +116,7 @@ const SignUp = () => {
                                   
         </FormControl>
 
-        <FormControl id='password' isRequired>
+        <FormControl id='confirm-password' isRequired>
             <FormLabel>Confirm Password</FormLabel>
             <InputGroup>
                 <Input type={show ? "text" : "password"} placeholder='Confirm Password' onChange={(e) => {
@@ -80,6 +143,7 @@ const SignUp = () => {
             width='100%'
             style={{marginTop:15}}
             onClick={submitHandler}
+            isLoading={loading}
         >Sign Up</Button>
 
     </VStack>
