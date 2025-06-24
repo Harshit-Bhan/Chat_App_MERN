@@ -1,6 +1,8 @@
 import { FormControl, Input, VStack , FormLabel, InputGroup, InputRightElement, Button } from '@chakra-ui/react'
 import React, { useState } from 'react'
 import { useToast } from '@chakra-ui/react'
+import axios from 'axios';
+import { useHistory } from 'react-router-dom'
 
 const SignUp = () => {
     const [show,setShow] = useState(false);
@@ -10,6 +12,7 @@ const SignUp = () => {
     const [confirmpassword,setConfirmPassword] = useState();
     const [pic,setPic] = useState();
     const [loading,setLoading] = useState(false);
+    const history = useHistory();
 
     const toast = useToast();
 
@@ -80,7 +83,70 @@ const SignUp = () => {
       };
       
 
-    const submitHandler = () => {
+    const submitHandler = async () => {
+        setLoading(true);
+        if(!name || !email || !password || !confirmpassword)
+        {
+          toast({
+            title: "Please fill all the details",
+            status: "warning",
+            duration: 5000,
+            isClosable: true,
+            position: 'bottom',
+          });
+          setLoading(false);
+          return;
+        }
+        if(password !== confirmpassword)
+          {
+            toast({
+              title: "Passwords Do Not Match",
+              status: "warning",
+              duration: 5000,
+              isClosable: true,
+              position: 'bottom',
+            });
+            setLoading(false);
+            return;
+          }
+
+          try {
+            const config = {
+              headers: {
+                "Content-type": "application/json",
+              },
+            };
+          
+            const { data } = await axios.post("/api/user", {
+              name,
+              email,
+              password,
+              pic, 
+            }, config);
+          
+            toast({
+              title: "Registration Successful",
+              status: "success",
+              duration: 5000,
+              isClosable: true,
+              position: "bottom",
+            });
+          
+            localStorage.setItem("userInfo", JSON.stringify(data));
+            setLoading(false);
+            history.push('/chats');
+          } catch (error) {
+            toast({
+              title: "Error Occurred!",
+              description: error.response.data.message,
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+              position: "bottom",
+            });
+            setLoading(false);
+          }
+          
 
     }
 
