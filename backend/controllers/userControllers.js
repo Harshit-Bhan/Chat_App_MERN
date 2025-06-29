@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
-const generateToken = require('../config/generateToken')
+const generateToken = require('../config/generateToken');
+const Chat = require("../models/chatModel");
 
 const registerUser = asyncHandler(async (req,res) => {
     const {name , email , password , pic} = req.body;
@@ -78,5 +79,65 @@ const allUsers = asyncHandler(async (req, res) => {
     res.send(users);
 });
 
+const renameGroup = asyncHandler(async (req,res) => {
+    const { chatId , chatName } = req.body;
 
-module.exports = { registerUser , authUser , allUsers }
+    if (!chatId || !chatName) {
+    return res.status(400).send({ message: "chatId and chatName are required." });
+    }
+
+    try {
+    const updatedChat = await Chat.findByIdAndUpdate(
+      chatId,
+      { chatName: chatName },
+      { new: true } 
+    )
+      .populate("users", "-password")
+      .populate("groupAdmin", "-password");
+
+    if (!updatedChat) {
+      return res.status(404).send({ message: "Chat not found." });
+    }
+
+    res.status(200).json(updatedChat);
+  } catch (error) {
+    res.status(500);
+    throw new Error("Failed to rename the group: " + error.message);
+  }
+
+})
+
+const addToGroup = asyncHandler(async (req,res) => {
+    const { chatId, userId } = req.body;
+
+    const added = await Chat.findByIdAndUpdate(chatId , {
+        $push : { users: userId },
+        },
+    {new : true}
+) .populate('users','-password').populate('groupAdmin','-password');
+
+if (!added) {
+    return res.status(404).send({ message: "Chat not found." });
+} else{
+    res.status(200).json(added);
+}
+});
+
+const removeFromGroup = asyncHandler(async (req,res) => {
+    const { chatId, userId } = req.body;
+
+    const removed = await Chat.findByIdAndUpdate(chatId , {
+        $pull : { users: userId },
+        },
+    {new : true}
+) .populate('users','-password').populate('groupAdmin','-password');
+
+if (!removed) {
+    return res.status(404).send({ message: "Chat not found." });
+} else{
+    res.status(200).json(removed);
+}
+});
+
+
+module.exports = { registerUser , authUser , allUsers, renameGroup , addToGroup , removeFromGroup }
