@@ -1,8 +1,8 @@
-const expressAsyncHandler = require("express-async-handler");
+const asyncHandler = require("express-async-handler");
 const Chat = require("../models/chatModel");
-const User = require("../models/userModel"); // Needed for User.populate
+const User = require("../models/userModel"); 
 
-const accessChat = expressAsyncHandler(async (req, res) => {
+const accessChat = asyncHandler(async (req, res) => {
   const { userId } = req.body;
 
   if (!userId) {
@@ -50,4 +50,23 @@ const accessChat = expressAsyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { accessChat };
+const fetchChat = asyncHandler(async (req, res) => {
+  try {
+    const chats = await Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
+      .populate("users", "-password")
+      .populate("groupAdmin", "-password") 
+      .populate('latestMessage')
+      .sort({ updatedAt: -1 }); 
+    const populatedChats = await User.populate(chats, {
+      path: "latestMessage.sender",
+      select: "name pic email",
+    });
+
+    res.status(200).send(populatedChats);
+  } catch (error) {
+    res.status(500);
+    throw new Error(error.message);
+  }
+});
+
+module.exports = { accessChat , fetchChat };

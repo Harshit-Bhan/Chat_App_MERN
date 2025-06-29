@@ -3,7 +3,6 @@ const User = require("../models/userModel");
 const generateToken = require('../config/generateToken')
 const jwt = require("jsonwebtoken");
 
-
 const protect = asyncHandler(async (req, res, next) => {
     let token ;
 
