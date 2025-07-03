@@ -28,5 +28,8 @@
     "mongodb": "^6.17.0",
     "mongoose": "^8.16.0",
     "nodemon": "^3.1.10"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
   }
 }

@@ -90,8 +90,8 @@ Think of it as a vertical div with automatic margin between children.
 
 When you write this in Chakra UI:
 <FormControl id="email">
-  <FormLabel>Email</FormLabel>
-  <Input />
+<FormLabel>Email</FormLabel>
+<Input />
 </FormControl>
 
 Chakra automatically renders this under the hood:
@@ -99,12 +99,8 @@ Chakra automatically renders this under the hood:
 <input id="email" />
 ✅ So the label is properly connected to the input, without you manually typing for="..." and id="...".
 
-# FormLabel 
+# FormLabel
 
 It is equivalent to Label.
 
 # Input performs the same function in both.
-
-
-
-

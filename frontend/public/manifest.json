@@ -1,0 +1,9 @@
+{
+  "short_name": "Talk-A-Tive",
+  "name": "Talk-A-Tive Chat App",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff"
+}

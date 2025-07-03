@@ -1,31 +1,41 @@
 <------------------------{asyncHandler}------------------------>
 
 # const registerUser = asyncHandler(async (req, res) => {
-#  const { name, email, password } = req.body;
-#  // throw error or await something here
+
+# const { name, email, password } = req.body;
+
+# // throw error or await something here
+
 # });
 
 # const registerUser = async (req, res, next) => {
-#  try {
-#    const { name, email, password } = req.body;
-#  } catch (err) {
-#    next(err);
-#  }
+
+# try {
+
+# const { name, email, password } = req.body;
+
+# } catch (err) {
+
+# next(err);
+
+# }
+
 # };
 
 # How Express Handles Errors
+
 # When an error is passed to next(error), Express looks for an error-handling middleware like this:
 
 app.use((err, req, res, next) => {
-  res.status(500).json({ message: err.message });
+res.status(500).json({ message: err.message });
 });
 
 # So if something like await User.create() fails inside your registerUser function, it will be caught and handled gracefully.
 
 ------------------------------------<authMiddleware>------------------------------------
 if (
-  req.headers.authorization &&
-  req.headers.authorization.startsWith('Bearer')
+req.headers.authorization &&
+req.headers.authorization.startsWith('Bearer')
 )
 This is a conditional check to see if the incoming HTTP request has a valid authorization header that looks like a Bearer token.
 
@@ -44,17 +54,16 @@ So this checks whether the header follows the expected format.
 
 --------------------------------<>---------------------------------------------------
 
-
 --------------------------------<userController>-------------------------------------
 
-const users = await User.find(keyword).find({ _id: { $ne: req.user._id } }).select("-password");
+const users = await User.find(keyword).find({ \_id: { $ne: req.user.\_id } }).select("-password");
 
-✅ .find({ _id: { $ne: req.user._id } })
+✅ .find({ \_id: { $ne: req.user.\_id } })
 Adds an additional filter: exclude the current user from the results.
 
 $ne means “not equal” in MongoDB.
 
-req.user._id refers to the ID of the currently logged-in user.
+req.user.\_id refers to the ID of the currently logged-in user.
 
 So this ensures the user doesn't see themselves in the search results.
 
