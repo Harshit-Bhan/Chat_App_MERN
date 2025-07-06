@@ -13,6 +13,7 @@ import {
   MenuDivider,
   position,
   Toast,
+  Spinner,
 } from '@chakra-ui/react';
 import {
   Drawer,
@@ -40,10 +41,11 @@ const SideDrawer = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingChat, setLoadingChat] = useState();
+  
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const { user , setSelectedChat } = ChatState();
+  const { user , setSelectedChat , chats  , setChats } = ChatState();
 
   const history = useHistory();
 
@@ -65,6 +67,10 @@ const SideDrawer = () => {
 
       const {data} = await axios.post("/api/chat", {userId}, config);
 
+      if (!chats.find((c)=> c._id === data._id)) {
+        setChats([data, ...chats]);
+      }
+
       setSelectedChat(data);
       setLoadingChat(false);
       onClose();
@@ -77,6 +83,7 @@ const SideDrawer = () => {
         position: "bottom-left",
         description: error.message,
       })
+      return;
     }
   };
 
@@ -91,6 +98,7 @@ const SideDrawer = () => {
         isClosable: true,
         position: 'top-left',
       });
+      return;
     }
 
     try {
@@ -175,22 +183,22 @@ const SideDrawer = () => {
               <Button onClick={handleSearch}>Go</Button>
             </Flex>
 
+            <Box mt={4}>
             {loading ? (
-              <Box mt={4}>
+              
                 <ChatLoading/>
-              </Box>
+              
             ) : (
               searchResults.map((user) => (
                 <UserListItem key={user._id} user={user} handleFunction={()=>accessChat(user._id)}/>
               ))
             )}
-
-            {/* You can map search results here */}
+            </Box>
+            {loadingChat && <Spinner ml='auto' display='flex'/>}
           </DrawerBody>
         </DrawerContent>
       </Drawer>
 
-      {/* Modal controlled manually via state */}
       <ProfileModel isOpen={isProfileOpen} onClose={closeProfile} user={user} />
     </Box>
   );
