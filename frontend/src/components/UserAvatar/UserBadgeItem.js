@@ -9,12 +9,12 @@ const UserBadgeItem = ({ user, handleFunction }) => {
       borderRadius="2xl"
       m={1}
       fontSize="13px"
-      bg="purple.300"
+      bg="purple.600" 
       color="white"
       display="inline-flex"
       alignItems="center"
       cursor="pointer"
-      _hover={{ bg: 'purple.400' }}
+      _hover={{ bg: 'purple.700' }} 
     >
       {user.name}
       <CloseButton
@@ -22,10 +22,11 @@ const UserBadgeItem = ({ user, handleFunction }) => {
         size="sm"
         ml={2}
         color="white"
-        _hover={{ bg: 'purple.500' }}
+        _hover={{ bg: 'purple.800' }}
       />
     </Box>
   );
 };
 
 export default UserBadgeItem;
+

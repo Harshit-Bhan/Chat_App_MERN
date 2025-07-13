@@ -158,7 +158,7 @@ const SideDrawer = () => {
               <Avatar size="sm" cursor="pointer" name={user.name} src={user.pic} />
             </MenuButton>
             <MenuList>
-              <MenuItem onClick={openProfile}>My Profile</MenuItem> {/* 🔁 opens modal */}
+              <MenuItem onClick={openProfile}>My Profile</MenuItem> 
               <MenuDivider />
               <MenuItem onClick={logoutHandler}>Logout</MenuItem>
             </MenuList>
@@ -176,7 +176,7 @@ const SideDrawer = () => {
             <Flex>
               <Input
                 placeholder="Enter name or email"
-                mr={2} // margin right between input and button
+                mr={2} 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />

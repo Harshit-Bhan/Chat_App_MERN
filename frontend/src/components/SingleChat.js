@@ -1,90 +1,82 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ChatState } from '../Context/ChatProvider';
 import { Box, IconButton, Text, Flex } from '@chakra-ui/react';
-import { ArrowBackIcon } from '@chakra-ui/icons';
+import { ArrowBackIcon, ViewIcon } from '@chakra-ui/icons';
 import { getSender, getSenderFull } from '../config/ChatLogics';
 import ProfileModel from './miscellaneous/ProfileModel';
-import { useMediaQuery } from '@chakra-ui/react';
+import UpdateGroupChatModal from './miscellaneous/UpdateGroupChatModal';
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const { user, selectedChat, setSelectedChat } = ChatState();
-
-  if (!selectedChat) {
-    return (
-      <Box
-        display={{ base: 'none', md: 'flex' }}
-        alignItems="center"
-        justifyContent="center"
-        width={{ base: '100%', md: '68%' }}
-        padding={3}
-        height="100%"
-      >
-        <Text fontSize="2xl" fontFamily="Work sans">
-          Click on a user to start chatting
-        </Text>
-      </Box>
-    );
-  }
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   return (
-    <Box
-      display={{ base: selectedChat ? 'flex' : 'none', md: 'flex' }}
-      flexDirection="column"
-      width={{ base: '100%', md: '68%' }}
-      height="100%"
-    >
-      
-      <Flex
-        align="center"
-        px={3}
-        py={2}
-        gap={3}
-        fontSize={{ base: '20px', md: '24px' }}
-        fontFamily="Work sans"
-        color="gray.700"
-      >
-        <IconButton
-          display={{ base: 'flex', md: 'none' }}
-          icon={<ArrowBackIcon />}
-          onClick={() => {
-            setSelectedChat('');
-            setFetchAgain(!fetchAgain);
-          }}
-          aria-label="Back"
-          variant="ghost"
-          size="sm"
-        />
-        {!selectedChat.isGroupChat ? (
-            <>
+    <>
+      {selectedChat ? (
+        <>
+          <Text
+            display="flex"
+            fontSize={{ base: '28px', md: '30px' }}
+            fontFamily="Work sans"
+            pb={3}
+            px={2}
+            justifyContent={{ base: 'space-between' }}
+            alignItems="center"
+            width="100%"
+          >
+            <IconButton
+              display={{ base: 'flex', md: 'none' }}
+              icon={<ArrowBackIcon />}
+              onClick={() => setSelectedChat('')}
+            />
+            {!selectedChat.isGroupChat ? (
+              <>
                 {getSender(user, selectedChat.users)}
-                <ProfileModel user={getSenderFull(user,selectedChat.users)}/>
-            </> 
-        ) : (
-            <>
-                {selectedChat.chatName.toUpperCase()}
-            </>
-        )}
-        <Text fontWeight="bold" noOfLines={1}>
-          {/* {user.name}'s Chat */}
-        </Text>
-      </Flex>
-
-      
-      <Box
-        flex="1"
-        bg="white"
-        borderRadius="lg"
-        borderWidth="1px"
-        boxShadow="md"
-        p={3}
-        mt={1}
-        overflowY="auto"
-      >
-        
-        <Text color="gray.500">Chat area here...</Text>
-      </Box>
-    </Box>
-  );
-};
+                <IconButton
+                display={{ base: 'flex', md: 'flex' }}
+                icon={<ViewIcon />}
+                onClick={() => setIsProfileOpen(true)}
+                />
+                <ProfileModel
+                  user={getSenderFull(user, selectedChat.users)}
+                  isOpen={isProfileOpen}
+                  onClose={() => setIsProfileOpen(false)}/>
+              </>
+            ) : (
+              <>
+              {selectedChat.chatName.toUpperCase()}
+              {<UpdateGroupChatModal
+                fetchAgain={fetchAgain}
+                setFetchAgain={setFetchAgain}
+                />
+                }
+              </>
+            )}
+          </Text>
+          <Box
+            display="flex"
+            flexDirection="column"
+            justifyContent="flex-end"
+            p={3}
+            bg="#E8E8E8"
+            w="100%"
+            h="100%"
+            borderRadius="lg"
+            overflowY="hidden"
+          >  {/*messages here*/} </Box>
+        </> 
+      ) : ( 
+          <Box
+          display="flex" alignItems="center" justifyContent="center" height="100%">
+          <Text fontSize="2xl" pb={3} fontFamily="Work sans">
+            Click on a chat to start messaging
+          </Text>
+        </Box>
+      )}       
+    </>
+  )
+}
 
 export default SingleChat;
+
+
