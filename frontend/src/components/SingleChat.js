@@ -9,12 +9,17 @@ import axios from 'axios';
 import './styles.css';
 import ScrollableChat from './ScrollableChat';
 
+import io from 'socket.io-client';
+const ENDPOINT = 'http://localhost:5000';
+var socket, selectedChatCompare;
+
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const { user, selectedChat, setSelectedChat } = ChatState();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState('');
+  const [socketConnected, setSocketConnected] = useState(false);
 
   const toast = useToast();
 
@@ -83,6 +88,21 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    socket = io(ENDPOINT);
+    socket.emit('setup', user);
+    socket.on('connected', () => {
+    console.log('Connected to socket')
+      setSocketConnected(true);
+  });
+    socket.on('message received', (newMessage) => {
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    });
+    return () => {
+      socket.disconnect();
+    };
+  },[]);
 
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
