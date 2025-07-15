@@ -38,6 +38,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setMessages(data);
       console.log(messages);
       setLoading(false);
+      socket.emit('join chat', selectedChat._id);
+      // selectedChatCompare = selectedChat;
     } catch (error) {
       toast({
         title: 'Error fetching messages',

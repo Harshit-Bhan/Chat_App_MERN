@@ -45,4 +45,14 @@ io.on('connection', (socket) => {
     socket.emit('connected');
   }); 
 
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+    setSocketConnected(false);
+  });
+
+  socket.on('join chat', (room) => {
+    socket.join(room);
+    console.log('User joined room: ' + room);
+  });
+
 });
