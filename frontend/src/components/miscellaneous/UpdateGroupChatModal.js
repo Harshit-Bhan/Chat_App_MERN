@@ -22,7 +22,7 @@ import UserBadgeItem from '../UserAvatar/UserBadgeItem';
 import axios from 'axios';
 import UserListItem from '../UserAvatar/UserListItem';
 
-const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
+const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain , fetchMessages }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [groupChatName, setGroupChatName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -179,6 +179,7 @@ const handleRemove = async (userToRemove) => {
   // Remove chat from chat list
   setChats((prevChats) => prevChats.filter((c) => c._id !== selectedChat._id));
 
+  fetchMessages();
   setFetchAgain(!fetchAgain);
   setLoading(false);
   toast({
