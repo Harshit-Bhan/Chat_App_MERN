@@ -21,6 +21,7 @@
     "framer-motion": "^12.18.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-lottie": "^1.2.10",
     "react-router-dom": "^5.3.4",
     "react-scripts": "5.0.1",
     "react-scrollable-feed": "^2.0.3",

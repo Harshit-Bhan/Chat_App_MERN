@@ -71,4 +71,9 @@ io.on('connection', (socket) => {
     socket.in(room).emit('stop typing');
   })
 
+  socket.off('setup',() => {
+    socket.leave(userData._id);
+    console.log('User disconnected: ' + userData._id);
+  })
+
 });

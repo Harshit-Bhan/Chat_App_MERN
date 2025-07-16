@@ -4,3 +4,16 @@
     overflow-y: scroll;
     scrollbar-width: none;
 }
+.typing-indicator {
+  display: flex;
+  justify-content: flex-start;
+  padding-left: 12px;
+  margin-bottom: 8px;
+}
+
+.typing-indicator > div {
+  /* background-color: #ffffff; */
+  border-radius: 12px;
+  padding: 4px 8px;
+  max-width: fit-content;
+}
