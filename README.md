@@ -73,3 +73,15 @@ Tells Mongoose to exclude the password field from the results.
 "-password" means “do not include this field”.
 
 Important for security reasons — you don’t want to expose user passwords (even if hashed).
+
+
+<<........................................>>
+
+| Expression                           | Sends to...                             | Includes Sender? |
+| ------------------------------------ | --------------------------------------- | ---------------- |
+| `io.emit(event, data)`               | **Everyone** connected                  | ✅ Yes            |
+| `socket.emit(event, data)`           | **Only sender**                         | ✅ Yes            |
+| `socket.broadcast.emit(event, data)` | **Everyone except sender**              | ❌ No             |
+| `socket.in(room).emit(event, data)`  | **Everyone in room except sender**      | ❌ No             |
+| `io.in(room).emit(event, data)`      | **Everyone in room (including sender)** | ✅ Yes            |
+

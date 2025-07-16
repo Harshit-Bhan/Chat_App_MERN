@@ -20,8 +20,27 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const [socketConnected, setSocketConnected] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
   const toast = useToast();
+
+    useEffect(() => {
+    socket = io(ENDPOINT);
+    socket.emit('setup', user);
+    socket.on('connected', () => {
+    console.log('Connected to socket')
+      setSocketConnected(true);
+    socket.on('typing', () => {
+      setIsTyping(true);
+    });
+    socket.on('stop typing', () => {
+      setIsTyping(false);
+    });
+  });
+
+    
+  },[]);
 
   const fetchMessages = async () => {
     if (!selectedChat) return;
@@ -55,11 +74,26 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   useEffect(() => {
     fetchMessages();
+
+    selectedChatCompare = selectedChat;
+
   }, [selectedChat]);
+
+  useEffect(() => {
+    socket.on('message received', (newMessageReceived) => {
+      if (!selectedChatCompare || selectedChatCompare._id !== newMessageReceived.chat._id) {
+        
+        console.log('New message received in a different chat');
+      } else {
+        setMessages([...messages, newMessageReceived]);
+      }
+    });
+  })
 
   const sendMessage = async (event) => {
     if (event.key === 'Enter' && newMessage) {
       setLoading(true);
+      socket.emit('stop typing', selectedChat._id);
       try {
         const config = {
           headers: {
@@ -76,6 +110,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
         console.log(data);
 
+        socket.emit('new message', data);
+
         setMessages([...messages, data]);
                  
       } catch (error) {
@@ -91,23 +127,28 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     }
   }
 
-  useEffect(() => {
-    socket = io(ENDPOINT);
-    socket.emit('setup', user);
-    socket.on('connected', () => {
-    console.log('Connected to socket')
-      setSocketConnected(true);
-  });
-    socket.on('message received', (newMessage) => {
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-    });
-    return () => {
-      socket.disconnect();
-    };
-  },[]);
-
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
+
+    if (!socketConnected) return;
+
+    if (!typing) {
+      setTyping(true);
+      socket.emit('typing', selectedChat._id);
+    }
+
+    let lastTypingTime = new Date().getTime();
+    var timeLength = 3000;
+    setTimeout(() => {
+      var timeNow = new Date().getTime();
+      var timeDiff = timeNow - lastTypingTime;
+
+      if (timeDiff >= timeLength && typing) {
+        socket.emit('stop typing', selectedChat._id);
+        setTyping(false);
+      }
+    }, timeLength);  
+
   }
 
   return (
@@ -178,6 +219,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               </div>
           )} 
             <FormControl  isRequired mt={3}>
+              {isTyping ? <div>Typing...</div> : <></>}
               <Input
                 onKeyDown={sendMessage}
                 variant="filled"
