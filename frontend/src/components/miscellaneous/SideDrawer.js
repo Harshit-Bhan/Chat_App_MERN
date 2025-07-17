@@ -35,7 +35,6 @@ import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 import ChatLoading from '../ChatLoading';
 import UserListItem from '../UserAvatar/UserListItem';
-import NotificationBadge, { Effect } from 'react-notification-badge';
 
 const SideDrawer = () => {
   const [search, setSearch] = useState('');
