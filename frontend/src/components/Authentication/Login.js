@@ -46,7 +46,7 @@ const Login = () => {
         headers: { 'Content-type': 'application/json' },
       };
 
-      const { data } = await axios.post('/api/user/login', { email, password }, config);
+      const { data } = await axios.post('https://chat-app-backend-sczn.onrender.com/api/user/login', { email, password }, config);
 
       toast({
         title: 'Login Successful!',
@@ -57,7 +57,7 @@ const Login = () => {
       });
 
       localStorage.setItem('userInfo', JSON.stringify(data));
-      setUser(data); // ✅ update context
+      setUser(data); 
       history.push('/chats');
     } catch (error) {
       toast({

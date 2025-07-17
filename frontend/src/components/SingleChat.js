@@ -20,11 +20,11 @@ import ScrollableChat from './ScrollableChat';
 import Lottie from 'react-lottie';
 
 import io from 'socket.io-client';
-const ENDPOINT = 'http://localhost:5000';
+const ENDPOINT = 'https://chat-app-backend-sczn.onrender.com';
 var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
-  const { user, selectedChat, setSelectedChat , notifications , setNotifications } = ChatState();
+  const { user, selectedChat, setSelectedChat, notifications, setNotifications } = ChatState();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -60,7 +60,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         },
       };
 
-      const { data } = await axios.get(`/api/message/${selectedChat._id}`, config);
+      const { data } = await axios.get(`https://chat-app-backend-sczn.onrender.com/api/message/${selectedChat._id}`, config);
 
       setMessages(data);
       console.log(messages);
@@ -112,7 +112,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
         setNewMessage('');
         const { data } = await axios.post(
-          '/api/message',
+          'https://chat-app-backend-sczn.onrender.com/api/message',
           {
             content: newMessage,
             chatId: selectedChat._id,
@@ -181,7 +181,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               onClick={() => setSelectedChat('')}
             />
             {!selectedChat.isGroupChat ? (
-              <> 
+              <>
                 {getSender(user, selectedChat.users)}
                 <IconButton
                   display={{ base: 'flex', md: 'flex' }}

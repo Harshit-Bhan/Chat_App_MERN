@@ -22,7 +22,7 @@ import UserBadgeItem from '../UserAvatar/UserBadgeItem';
 import axios from 'axios';
 import UserListItem from '../UserAvatar/UserListItem';
 
-const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain , fetchMessages }) => {
+const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [groupChatName, setGroupChatName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,18 +33,17 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain , fetchMessages }) => 
   const { user, selectedChat, setSelectedChat, chats, setChats } = ChatState();
   const toast = useToast();
 
- 
   const handleRename = async () => {
     if (!groupChatName || groupChatName === selectedChat.chatName) {
-    toast({
-      title: 'Please enter a new name',
-      status: 'warning',
-      duration: 2000,
-      isClosable: true,
-      position: 'bottom-left',
-    });
-    return;
-  }
+      toast({
+        title: 'Please enter a new name',
+        status: 'warning',
+        duration: 2000,
+        isClosable: true,
+        position: 'bottom-left',
+      });
+      return;
+    }
 
     try {
       setRenameLoading(true);
@@ -54,7 +53,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain , fetchMessages }) => 
         },
       };
       const { data } = await axios.put(
-        `/api/chat/rename`,
+        `https://chat-app-backend-sczn.onrender.com/api/chat/rename`,
         {
           chatId: selectedChat._id,
           chatName: groupChatName,
@@ -63,9 +62,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain , fetchMessages }) => 
       );
 
       setSelectedChat(data);
-      setChats(
-      chats.map((c) => (c._id === data._id ? data : c))
-    );
+      setChats(chats.map((c) => (c._id === data._id ? data : c)));
       setFetchAgain(!fetchAgain);
       toast({
         title: 'Group Chat Renamed',
@@ -75,13 +72,13 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain , fetchMessages }) => 
         position: 'bottom-left',
       });
     } catch (error) {
-    //   toast({
-    //     title: 'Error renaming the Group',
-    //     status: 'error',
-    //     duration: 3000,
-    //     isClosable: true,
-    //     position: 'bottom-left',
-    //   });
+      //   toast({
+      //     title: 'Error renaming the Group',
+      //     status: 'error',
+      //     duration: 3000,
+      //     isClosable: true,
+      //     position: 'bottom-left',
+      //   });
       setRenameLoading(false);
     }
     setGroupChatName('');
@@ -118,7 +115,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain , fetchMessages }) => 
         },
       };
       const { data } = await axios.put(
-        '/api/chat/groupadd',
+        'https://chat-app-backend-sczn.onrender.com/api/chat/groupadd',
         {
           chatId: selectedChat._id,
           userId: userToAdd._id,
@@ -140,82 +137,78 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain , fetchMessages }) => 
       });
       setLoading(false);
     }
+  };
 
-  }
+  const handleRemove = async (userToRemove) => {
+    if (selectedChat.groupAdmin._id !== user._id && userToRemove._id !== user._id) {
+      toast({
+        title: 'Only admins can remove users',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'bottom-left',
+      });
+      return;
+    }
 
- 
-const handleRemove = async (userToRemove) => {
-  if (selectedChat.groupAdmin._id !== user._id && userToRemove._id !== user._id) {
-    toast({
-      title: 'Only admins can remove users',
-      status: 'error',
-      duration: 3000,
-      isClosable: true,
-      position: 'bottom-left',
-    });
-    return;
-  }
+    try {
+      setLoading(true);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
 
-  try {
-    setLoading(true);
-    const config = {
-      headers: {
-        Authorization: `Bearer ${user.token}`,
-      },
-    };
+      const { data } = await axios.put(
+        'https://chat-app-backend-sczn.onrender.com/api/chat/groupremove',
+        {
+          chatId: selectedChat._id,
+          userId: userToRemove._id,
+        },
+        config
+      );
 
-    const { data } = await axios.put(
-      '/api/chat/groupremove',
-      {
-        chatId: selectedChat._id,
-        userId: userToRemove._id,
-      },
-      config
-    );
+      if (userToRemove._id === user._id) {
+        setSelectedChat(null);
 
-    if (userToRemove._id === user._id) {
-  setSelectedChat(null);
+        // Remove chat from chat list
+        setChats((prevChats) => prevChats.filter((c) => c._id !== selectedChat._id));
 
-  // Remove chat from chat list
-  setChats((prevChats) => prevChats.filter((c) => c._id !== selectedChat._id));
+        fetchMessages();
+        setFetchAgain(!fetchAgain);
+        setLoading(false);
+        toast({
+          title: 'You left the group',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+          position: 'bottom-left',
+        });
+        return;
+      }
 
-  fetchMessages();
-  setFetchAgain(!fetchAgain);
-  setLoading(false);
-  toast({
-    title: 'You left the group',
-    status: 'success',
-    duration: 3000,
-    isClosable: true,
-    position: 'bottom-left',
-  });
-  return;
-}
-
-
-    setSelectedChat(data);
-    setFetchAgain(!fetchAgain);
-    toast({
-      title: 'User removed from group',
-      status: 'success',
-      duration: 3000,
-      isClosable: true,
-      position: 'bottom-left',
-    });
-  } catch (error) {
-    toast({
-      title: 'Failed to remove user',
-      description: error.response?.data?.message || error.message,
-      status: 'error',
-      duration: 3000,
-      isClosable: true,
-      position: 'bottom-left',
-    });
-  } finally {
-    setLoading(false);
-  }
-};
-
+      setSelectedChat(data);
+      setFetchAgain(!fetchAgain);
+      toast({
+        title: 'User removed from group',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+        position: 'bottom-left',
+      });
+    } catch (error) {
+      toast({
+        title: 'Failed to remove user',
+        description: error.response?.data?.message || error.message,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'bottom-left',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSearch = async (query) => {
     setSearch(query);
@@ -229,23 +222,26 @@ const handleRemove = async (userToRemove) => {
       setLoading(true);
       const config = {
         headers: {
-            Authorization: `Bearer ${user.token}`,
-        }
-        };
-        const { data } = await axios.get(`/api/user?search=${query}`, config);
-        setLoading(false);
-        setSearchResults(data);
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      const { data } = await axios.get(
+        `https://chat-app-backend-sczn.onrender.com/api/user?search=${query}`,
+        config
+      );
+      setLoading(false);
+      setSearchResults(data);
     } catch (error) {
-        toast({
-            title: 'Failed to search users',
-            description: error.response?.data?.message || error.message,
-            status: 'error',
-            duration: 3000,
-            isClosable: true,
-            position: 'bottom-left',
-        });
-        setLoading(false);
-        setSearchResults([]);
+      toast({
+        title: 'Failed to search users',
+        description: error.response?.data?.message || error.message,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'bottom-left',
+      });
+      setLoading(false);
+      setSearchResults([]);
     }
   };
 
@@ -268,11 +264,7 @@ const handleRemove = async (userToRemove) => {
           <ModalBody>
             <Box display="flex" flexWrap="wrap" mb={3}>
               {selectedChat.users.map((u) => (
-                <UserBadgeItem
-                  key={u._id}
-                  user={u}
-                  handleFunction={() => handleRemove(u)}
-                />
+                <UserBadgeItem key={u._id} user={u} handleFunction={() => handleRemove(u)} />
               ))}
             </Box>
 
@@ -302,17 +294,16 @@ const handleRemove = async (userToRemove) => {
               />
             </FormControl>
             {loading ? (
-            <Spinner size="lg" />
+              <Spinner size="lg" />
             ) : (
-            searchResult?.map((user) => (
-            <UserListItem
-            key={user._id}
-            user={user}
-            handleFunction={() => handleAddUser(user)}
-            />
-        ))
-        )}
-
+              searchResult?.map((user) => (
+                <UserListItem
+                  key={user._id}
+                  user={user}
+                  handleFunction={() => handleAddUser(user)}
+                />
+              ))
+            )}
           </ModalBody>
 
           <ModalFooter>
@@ -325,6 +316,5 @@ const handleRemove = async (userToRemove) => {
     </>
   );
 };
-
 
 export default UpdateGroupChatModal;

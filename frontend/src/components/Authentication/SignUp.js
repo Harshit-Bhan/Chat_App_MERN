@@ -123,7 +123,7 @@ const SignUp = () => {
       };
 
       const { data } = await axios.post(
-        '/api/user',
+        'https://chat-app-backend-sczn.onrender.com/api/user',
         {
           name,
           email,

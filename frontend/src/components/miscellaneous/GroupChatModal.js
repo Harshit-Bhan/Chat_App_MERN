@@ -29,7 +29,6 @@ const GroupChatModal = ({ children }) => {
 
   const toast = useToast();
 
-
   const { user, chats, setChats } = ChatState();
 
   const handleSubmit = async () => {
@@ -47,12 +46,16 @@ const GroupChatModal = ({ children }) => {
       const config = {
         headers: {
           Authorization: `Bearer ${user.token}`,
-        }
+        },
       };
-      const { data } = await axios.post('/api/chat/group', {
-        name: groupChatName,
-        users: JSON.stringify(selectedUsers.map((u) => u._id)),
-      }, config);
+      const { data } = await axios.post(
+        'https://chat-app-backend-sczn.onrender.com/api/chat/group',
+        {
+          name: groupChatName,
+          users: JSON.stringify(selectedUsers.map((u) => u._id)),
+        },
+        config
+      );
       setChats([data, ...chats]);
       onClose();
       toast({
@@ -73,37 +76,39 @@ const GroupChatModal = ({ children }) => {
       });
     }
   };
-  
 
   const handleSearch = async (query) => {
-  setSearch(query);
-  if (!query.trim()) {
-    setSearchResults([]);
-    return;
-  }
+    setSearch(query);
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
 
-  try {
-    setLoading(true);
-    const config = {
-      headers: {
-        Authorization: `Bearer ${user.token}`,
-      },
-    };
-    const { data } = await axios.get(`/api/user?search=${query}`,config);
-    console.log(data);
-    setLoading(false);
-    setSearchResults(data);
-  } catch (error) {
-    toast({
-      title: 'Error fetching users',
-      status: 'error',
-      duration: 3000,
-      isClosable: true,
-      position: 'bottom-left',
-      description: 'Failed to load users. Please try again later.',
-    });
-  }
-};
+    try {
+      setLoading(true);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      const { data } = await axios.get(
+        `https://chat-app-backend-sczn.onrender.com/api/user?search=${query}`,
+        config
+      );
+      console.log(data);
+      setLoading(false);
+      setSearchResults(data);
+    } catch (error) {
+      toast({
+        title: 'Error fetching users',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'bottom-left',
+        description: 'Failed to load users. Please try again later.',
+      });
+    }
+  };
 
   const handleGroup = (usertoAdd) => {
     if (selectedUsers.includes(usertoAdd)) {
@@ -167,20 +172,28 @@ const GroupChatModal = ({ children }) => {
                 onChange={(e) => handleSearch(e.target.value)}
               />
             </FormControl>
-            
-            <Box w='100%' display="flex" flexWrap="wrap">
-  {selectedUsers.map((user) => (
-    <UserBadgeItem
-      key={user._id}
-      user={user}
-      handleFunction={() => handleDelete(user)}
-    />
-  ))}
-</Box>
+
+            <Box w="100%" display="flex" flexWrap="wrap">
+              {selectedUsers.map((user) => (
+                <UserBadgeItem
+                  key={user._id}
+                  user={user}
+                  handleFunction={() => handleDelete(user)}
+                />
+              ))}
+            </Box>
             {loading ? (
               <div>Loading...</div>
             ) : (
-              searchResult?.slice(0,4).map((user) => <UserListItem key={user._id} user={user} handleFunction={()=>handleGroup(user)} />)
+              searchResult
+                ?.slice(0, 4)
+                .map((user) => (
+                  <UserListItem
+                    key={user._id}
+                    user={user}
+                    handleFunction={() => handleGroup(user)}
+                  />
+                ))
             )}
           </ModalBody>
 
