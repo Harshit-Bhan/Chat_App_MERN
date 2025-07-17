@@ -35,22 +35,25 @@ import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 import ChatLoading from '../ChatLoading';
 import UserListItem from '../UserAvatar/UserListItem';
+import NotificationBadge, { Effect } from 'react-notification-badge';
 
 const SideDrawer = () => {
   const [search, setSearch] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingChat, setLoadingChat] = useState();
-  
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const { user , setSelectedChat , chats  , setChats } = ChatState();
+  const { user, setSelectedChat, chats, setChats, notifications, setNotifications } = ChatState();
 
   const history = useHistory();
 
   const logoutHandler = () => {
     localStorage.removeItem('userInfo');
+    setSelectedChat(null);
+    setChats([]);
+    setNotifications([]);
     history.push('/');
   };
 
@@ -60,14 +63,14 @@ const SideDrawer = () => {
 
       const config = {
         headers: {
-          "Content-type": "application/json",
+          'Content-type': 'application/json',
           Authorization: `Bearer ${user.token}`,
-        }
-      }
+        },
+      };
 
-      const {data} = await axios.post("/api/chat", {userId}, config);
+      const { data } = await axios.post('/api/chat', { userId }, config);
 
-      if (!chats.find((c)=> c._id === data._id)) {
+      if (!chats.find((c) => c._id === data._id)) {
         setChats([data, ...chats]);
       }
 
@@ -76,13 +79,13 @@ const SideDrawer = () => {
       onClose();
     } catch (error) {
       toast({
-        title: "Error fetching the chat",
-        status: "error",
+        title: 'Error fetching the chat',
+        status: 'error',
         duration: 3000,
         isClosable: true,
-        position: "bottom-left",
+        position: 'bottom-left',
         description: error.message,
-      })
+      });
       return;
     }
   };
@@ -147,18 +150,71 @@ const SideDrawer = () => {
         </Text>
 
         <HStack spacing="4">
-          <Menu>
+          <Menu autoSelect={false}>
             <MenuButton p={1}>
-              <BellIcon fontSize="2xl" />
+              <span style={{ position: 'relative' }}>
+                <Box position="relative">
+                  <BellIcon fontSize="2xl" />
+                  {notifications.length > 0 && (
+                    <Box
+                      position="absolute"
+                      top="-1"
+                      right="-1"
+                      bg="red.500"
+                      borderRadius="full"
+                      w="18px"
+                      h="18px"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      color="white"
+                      fontSize="xs"
+                      fontWeight="bold"
+                    >
+                      {notifications.length}
+                    </Box>
+                  )}
+                </Box>
+              </span>
             </MenuButton>
+
+            <MenuList>
+              {!notifications?.length ? (
+                <MenuItem>No new messages</MenuItem>
+              ) : (
+                notifications.map((notif) => {
+                  const chatName = notif?.chat?.isGroupChat
+                    ? notif?.chat?.chatName
+                    : notif?.sender?.name;
+
+                  if (!chatName) return null; // skip malformed notifications
+
+                  return (
+                    <MenuItem
+                      key={notif._id}
+                      onClick={() => {
+                        if (notif?.chat) {
+                          setSelectedChat(notif.chat);
+                          setNotifications(notifications.filter((n) => n._id !== notif._id));
+                        }
+                      }}
+                    >
+                      {notif.chat.isGroupChat
+                        ? `New message in ${notif.chat.chatName}`
+                        : `New message from ${notif.sender.name}`}
+                    </MenuItem>
+                  );
+                })
+              )}
+            </MenuList>
           </Menu>
 
-          <Menu>
+          <Menu autoSelect={false}>
             <MenuButton as={Button} rightIcon={<ChevronDownIcon />} variant="ghost">
               <Avatar size="sm" cursor="pointer" name={user.name} src={user.pic} />
             </MenuButton>
             <MenuList>
-              <MenuItem onClick={openProfile}>My Profile</MenuItem> 
+              <MenuItem onClick={openProfile}>My Profile</MenuItem>
               <MenuDivider />
               <MenuItem onClick={logoutHandler}>Logout</MenuItem>
             </MenuList>
@@ -176,7 +232,7 @@ const SideDrawer = () => {
             <Flex>
               <Input
                 placeholder="Enter name or email"
-                mr={2} 
+                mr={2}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -184,17 +240,19 @@ const SideDrawer = () => {
             </Flex>
 
             <Box mt={4}>
-            {loading ? (
-              
-                <ChatLoading/>
-              
-            ) : (
-              searchResults.map((user) => (
-                <UserListItem key={user._id} user={user} handleFunction={()=>accessChat(user._id)}/>
-              ))
-            )}
+              {loading ? (
+                <ChatLoading />
+              ) : (
+                searchResults.map((user) => (
+                  <UserListItem
+                    key={user._id}
+                    user={user}
+                    handleFunction={() => accessChat(user._id)}
+                  />
+                ))
+              )}
             </Box>
-            {loadingChat && <Spinner ml='auto' display='flex'/>}
+            {loadingChat && <Spinner ml="auto" display="flex" />}
           </DrawerBody>
         </DrawerContent>
       </Drawer>

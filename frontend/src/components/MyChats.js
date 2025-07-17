@@ -7,8 +7,7 @@ import { getSender } from '../config/ChatLogics';
 import GroupChatModal from './miscellaneous/GroupChatModal';
 import { useMediaQuery } from '@chakra-ui/react';
 
-
-const MyChats = ({fetchAgain}) => {
+const MyChats = ({ fetchAgain }) => {
   const [loggedUser, setLoggedUser] = useState();
   const [loading, setLoading] = useState(false);
   // const [fetchAgain, setFetchAgain] = useState(false);
@@ -17,8 +16,6 @@ const MyChats = ({fetchAgain}) => {
   const toast = useToast();
 
   const [isBelow1050] = useMediaQuery('(max-width: 1050px)');
-
-
 
   const fetchChats = async () => {
     if (!user) return;
@@ -48,11 +45,10 @@ const MyChats = ({fetchAgain}) => {
     }
   };
 
-useEffect(() => {
-  setLoggedUser(user); 
-  if (user) fetchChats(); 
-}, [user, fetchAgain]); 
-
+  useEffect(() => {
+    setLoggedUser(user);
+    if (user) fetchChats();
+  }, [user, fetchAgain]);
 
   return (
     <Box
@@ -68,39 +64,37 @@ useEffect(() => {
       // position="relative"
       // overflowY="hidden"
     >
-<Box pb={3} px={3} fontFamily="Work sans" w="100%">
-  <Box
-    display="flex"
-    flexDirection={isBelow1050 ? 'column' : 'row'}
-    alignItems={isBelow1050 ? 'flex-start' : 'center'}
-    justifyContent="space-between"
-    gap={2}
-    w="100%"
-  >
-    <Text fontSize={{ base: '24px', md: '30px' }}>My Chats</Text>
-    <GroupChatModal>
-      <Button
-        fontSize={isBelow1050 ? '15px' : '17px'}
-        rightIcon={<AddIcon />}
-        onClick={() => {
-          setSelectedChat(null);
-          // setFetchAgain(!fetchAgain);
-        }}
-        bg="blue.400"
-        color="white"
-        _hover={{ bg: 'blue.500' }}
-        _active={{ bg: 'blue.600' }}
-        _focus={{ boxShadow: 'outline' }}
-        width={isBelow1050 ? '100%' : 'auto'}
-        alignSelf={isBelow1050 ? 'stretch' : 'auto'}
-      >
-        New Group Chat
-      </Button>
-    </GroupChatModal>
-  </Box>
-</Box>
-
-
+      <Box pb={3} px={3} fontFamily="Work sans" w="100%">
+        <Box
+          display="flex"
+          flexDirection={isBelow1050 ? 'column' : 'row'}
+          alignItems={isBelow1050 ? 'flex-start' : 'center'}
+          justifyContent="space-between"
+          gap={2}
+          w="100%"
+        >
+          <Text fontSize={{ base: '24px', md: '30px' }}>My Chats</Text>
+          <GroupChatModal>
+            <Button
+              fontSize={isBelow1050 ? '15px' : '17px'}
+              rightIcon={<AddIcon />}
+              onClick={() => {
+                setSelectedChat(null);
+                // setFetchAgain(!fetchAgain);
+              }}
+              bg="blue.400"
+              color="white"
+              _hover={{ bg: 'blue.500' }}
+              _active={{ bg: 'blue.600' }}
+              _focus={{ boxShadow: 'outline' }}
+              width={isBelow1050 ? '100%' : 'auto'}
+              alignSelf={isBelow1050 ? 'stretch' : 'auto'}
+            >
+              New Group Chat
+            </Button>
+          </GroupChatModal>
+        </Box>
+      </Box>
 
       <Box
         display="flex"

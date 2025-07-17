@@ -24,7 +24,7 @@ const ENDPOINT = 'http://localhost:5000';
 var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
-  const { user, selectedChat, setSelectedChat } = ChatState();
+  const { user, selectedChat, setSelectedChat , notifications , setNotifications } = ChatState();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -88,7 +88,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   useEffect(() => {
     socket.on('message received', (newMessageReceived) => {
       if (!selectedChatCompare || selectedChatCompare._id !== newMessageReceived.chat._id) {
-        console.log('New message received in a different chat');
+        if (!notifications.includes(newMessageReceived)) {
+          setNotifications([newMessageReceived, ...notifications]);
+          setFetchAgain(!fetchAgain);
+        }
       } else {
         setMessages([...messages, newMessageReceived]);
       }
@@ -178,7 +181,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               onClick={() => setSelectedChat('')}
             />
             {!selectedChat.isGroupChat ? (
-              <>
+              <> 
                 {getSender(user, selectedChat.users)}
                 <IconButton
                   display={{ base: 'flex', md: 'flex' }}
