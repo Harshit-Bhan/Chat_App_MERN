@@ -10,7 +10,13 @@ const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
 dotenv.config();
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: ['http://localhost:3000', 'https://chat-app-mern-j2if.vercel.app'],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 connectDB();
 
@@ -20,8 +26,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/user', userRoutes);
 app.use('/api/chat', chatRoutes);
-app.use('/api/message',messageRoutes);
-
+app.use('/api/message', messageRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
@@ -30,11 +35,12 @@ const PORT = process.env.PORT || 5002;
 
 const server = app.listen(PORT, console.log(`Server Started on Port ${PORT}`.blue.bold));
 
-const io = require('socket.io')(server,{
+const io = require('socket.io')(server, {
   pingTimeout: 60000,
   cors: {
-    origin: 'http://localhost:3000',
-  }
+    origin: 'https://chat-app-mern-j2if.vercel.app',
+    credentials: true,
+  },
 });
 
 io.on('connection', (socket) => {
@@ -44,7 +50,7 @@ io.on('connection', (socket) => {
     socket.join(userData._id);
     console.log('User connected: ' + userData._id);
     socket.emit('connected');
-  }); 
+  });
 
   socket.on('join chat', (room) => {
     socket.join(room);
@@ -56,7 +62,7 @@ io.on('connection', (socket) => {
 
     if (!chat.users) return console.log('chat.users not defined');
 
-    chat.users.forEach(user => {
+    chat.users.forEach((user) => {
       if (user._id === newMessageReceived.sender._id) return;
 
       socket.in(user._id).emit('message received', newMessageReceived);
@@ -69,11 +75,10 @@ io.on('connection', (socket) => {
 
   socket.on('stop typing', (room) => {
     socket.in(room).emit('stop typing');
-  })
+  });
 
-  socket.off('setup',() => {
+  socket.off('setup', () => {
     socket.leave(userData._id);
     console.log('User disconnected: ' + userData._id);
-  })
-
+  });
 });
